@@ -1,0 +1,80 @@
+import 'enums.dart';
+
+typedef Id = String;
+
+class ShotSpec {
+  final Id id;
+  final Club club;
+  final int carryYards;
+  final Trajectory trajectory;
+  final CurveShape curveShape;
+  final CurveMag curveMag;
+  const ShotSpec({
+    required this.id,
+    required this.club,
+    required this.carryYards,
+    required this.trajectory,
+    required this.curveShape,
+    required this.curveMag,
+  });
+}
+
+enum AttemptResult { executed, mulligan, aborted }
+
+class ShotAttempt {
+  final Id id;
+  final Id specId;
+  final DateTime timestamp;
+  final int carryYards;
+  final Trajectory height;
+  final CurveShape curveShape;
+  final CurveMag curveMag;
+  final int endSideYards;       // +R / -L
+  final int endShortLongYards;  // +long / -short
+  final AttemptResult result;
+  final String? notes;
+  const ShotAttempt({
+    required this.id,
+    required this.specId,
+    required this.timestamp,
+    required this.carryYards,
+    required this.height,
+    required this.curveShape,
+    required this.curveMag,
+    required this.endSideYards,
+    required this.endShortLongYards,
+    required this.result,
+    this.notes,
+  });
+}
+
+class Session {
+  final Id id;
+  final DateTime startedAt;
+  final DateTime? endedAt;
+  final String? location;
+  final List<Id> attemptIds;
+  const Session({
+    required this.id,
+    required this.startedAt,
+    this.endedAt,
+    this.location,
+    this.attemptIds = const [],
+  });
+}
+
+class UserPrefs {
+  final Units units;
+  final SkillLevel skill;
+  final Set<Club> inBag;
+  final GeneratorStrictness generatorStrictness;
+  const UserPrefs({
+    this.units = Units.yards,
+    this.skill = SkillLevel.intermediate,
+    required this.inBag,
+    this.generatorStrictness = GeneratorStrictness.defaultStrict,
+  });
+
+  UserPrefs withInBag(Set<Club> newBag) =>
+      UserPrefs(units: units, skill: skill, inBag: newBag, generatorStrictness: generatorStrictness);
+}
