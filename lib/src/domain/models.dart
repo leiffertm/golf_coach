@@ -68,13 +68,34 @@ class UserPrefs {
   final SkillLevel skill;
   final Set<Club> inBag;
   final GeneratorStrictness generatorStrictness;
+  final bool showClubChip;
+  final bool showCarryChip;
   const UserPrefs({
     this.units = Units.yards,
     this.skill = SkillLevel.intermediate,
     required this.inBag,
     this.generatorStrictness = GeneratorStrictness.defaultStrict,
+    this.showClubChip = true,
+    this.showCarryChip = true,
   });
 
-  UserPrefs withInBag(Set<Club> newBag) =>
-      UserPrefs(units: units, skill: skill, inBag: newBag, generatorStrictness: generatorStrictness);
+  UserPrefs copyWith({
+    Units? units,
+    SkillLevel? skill,
+    Set<Club>? inBag,
+    GeneratorStrictness? generatorStrictness,
+    bool? showClubChip,
+    bool? showCarryChip,
+  }) {
+    return UserPrefs(
+      units: units ?? this.units,
+      skill: skill ?? this.skill,
+      inBag: inBag ?? this.inBag,
+      generatorStrictness: generatorStrictness ?? this.generatorStrictness,
+      showClubChip: showClubChip ?? this.showClubChip,
+      showCarryChip: showCarryChip ?? this.showCarryChip,
+    );
+  }
+
+  UserPrefs withInBag(Set<Club> newBag) => copyWith(inBag: newBag);
 }

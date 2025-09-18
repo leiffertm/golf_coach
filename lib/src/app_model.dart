@@ -80,12 +80,12 @@ class AppModel extends ChangeNotifier {
   }
 
   void updateSkill(SkillLevel s) {
-    prefs = UserPrefs(units: prefs.units, skill: s, inBag: prefs.inBag, generatorStrictness: prefs.generatorStrictness);
+    prefs = prefs.copyWith(skill: s);
     notifyListeners();
   }
 
   void updateStrictness(GeneratorStrictness g) {
-    prefs = UserPrefs(units: prefs.units, skill: prefs.skill, inBag: prefs.inBag, generatorStrictness: g);
+    prefs = prefs.copyWith(generatorStrictness: g);
     notifyListeners();
   }
 
@@ -93,6 +93,18 @@ class AppModel extends ChangeNotifier {
     final bag = {...prefs.inBag};
     on ? bag.add(c) : bag.remove(c);
     prefs = prefs.withInBag(bag);
+    notifyListeners();
+  }
+
+  void setShowClubChip(bool on) {
+    if (!on && !prefs.showCarryChip) return;
+    prefs = prefs.copyWith(showClubChip: on);
+    notifyListeners();
+  }
+
+  void setShowCarryChip(bool on) {
+    if (!on && !prefs.showClubChip) return;
+    prefs = prefs.copyWith(showCarryChip: on);
     notifyListeners();
   }
 }

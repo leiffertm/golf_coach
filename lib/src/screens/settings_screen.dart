@@ -16,6 +16,8 @@ class SettingsScreen extends StatelessWidget {
         final skill = model.prefs.skill;
         final strict = model.prefs.generatorStrictness;
         final bag = model.prefs.inBag;
+        final showClub = model.prefs.showClubChip;
+        final showCarry = model.prefs.showCarryChip;
 
         return Padding(
           padding: const EdgeInsets.all(16),
@@ -47,6 +49,19 @@ class SettingsScreen extends StatelessWidget {
                     onSelected: (_) => model.updateStrictness(g),
                   );
                 }).toList(),
+              ),
+              const VSpacer(16),
+              Text('Shot Display', style: Theme.of(context).textTheme.titleLarge),
+              const VSpacer(8),
+              SwitchListTile(
+                title: const Text('Show club chip'),
+                value: showClub,
+                onChanged: (on) => model.setShowClubChip(on),
+              ),
+              SwitchListTile(
+                title: const Text('Show yardage chip'),
+                value: showCarry,
+                onChanged: (on) => model.setShowCarryChip(on),
               ),
               const VSpacer(16),
               Text('In-Bag Clubs', style: Theme.of(context).textTheme.titleLarge),
