@@ -10,6 +10,7 @@ import '../utils/format.dart';
 import '../domain/enums.dart';
 import '../domain/models.dart';
 import 'log_attempt_screen.dart';
+import '../widgets/spec_chips.dart';
 
 class HomeScreen extends StatelessWidget {
   final AppModel model;
@@ -35,11 +36,6 @@ class HomeScreen extends StatelessWidget {
                       label: const Text('Generate Shot'),
                       onPressed: () async {
                         await model.generate();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('New shot generated')),
-                          );
-                        }
                       },
                     ),
                   ),
@@ -61,7 +57,7 @@ class HomeScreen extends StatelessWidget {
                 )
               else
                 // Keep Flex layout consistent with the null branch.
-                Expanded(child: _SpecCard(spec: spec)),
+                Expanded(child: _SpecCard(spec: spec, skill: model.prefs.skill)),
               const VSpacer(16),
               _QuickStats(model: model),
               const VSpacer(8),
@@ -74,25 +70,68 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _SpecCard extends StatelessWidget {
+class _SpecCard extends StatefulWidget {
   final ShotSpec spec;
-  const _SpecCard({required this.spec});
+  final SkillLevel skill;
+  const _SpecCard({required this.spec, required this.skill});
+
+  @override
+  State<_SpecCard> createState() => _SpecCardState();
+}
+
+class _SpecCardState extends State<_SpecCard> {
+  bool _showClub = true;
+  bool _showCarry = true;
 
   @override
   Widget build(BuildContext context) {
+    final spec = widget.spec;
+    final skill = widget.skill;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Target Shot', style: Theme.of(context).textTheme.titleLarge),
-          const VSpacer(8),
+          const VSpacer(12),
+          _PrimarySpecSelector(
+            spec: spec,
+            skill: skill,
+            showClub: _showClub,
+            showCarry: _showCarry,
+            onToggleClub: _handleToggleClub,
+            onToggleCarry: _handleToggleCarry,
+          ),
+          const VSpacer(12),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: (_showClub || _showCarry)
+                ? Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      if (_showClub)
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: ClubChip(key: ValueKey('${spec.id}_club'), club: spec.club),
+                        ),
+                      if (_showCarry)
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: CarryChip(key: ValueKey('${spec.id}_carry'), spec: spec, skill: skill),
+                        ),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+          ),
+          const VSpacer(20),
           Wrap(spacing: 12, runSpacing: 8, children: [
-            Chip(label: Text(spec.club.label)),
-            Chip(label: Text('${spec.carryYards} yds')),
-            Chip(label: Text(spec.trajectory.name)),
-            Chip(label: Text('${spec.curveMag.name} ${spec.curveShape.name}')),
+            TrajectoryChip(trajectory: spec.trajectory),
+            CurveChip(shape: spec.curveShape, magnitude: spec.curveMag),
           ]),
-          const VSpacer(8),
+          const VSpacer(12),
           Row(
             children: [
               FilledButton.icon(
@@ -105,6 +144,88 @@ class _SpecCard extends StatelessWidget {
             ],
           ),
         ]),
+      ),
+    );
+  }
+
+  void _handleToggleClub() {
+    if (_showClub && !_showCarry) return;
+    setState(() {
+      _showClub = !_showClub;
+    });
+  }
+
+  void _handleToggleCarry() {
+    if (_showCarry && !_showClub) return;
+    setState(() {
+      _showCarry = !_showCarry;
+    });
+  }
+}
+
+class _PrimarySpecSelector extends StatelessWidget {
+  final ShotSpec spec;
+  final SkillLevel skill;
+  final bool showClub;
+  final bool showCarry;
+  final VoidCallback onToggleClub;
+  final VoidCallback onToggleCarry;
+
+  const _PrimarySpecSelector({
+    required this.spec,
+    required this.skill,
+    required this.showClub,
+    required this.showCarry,
+    required this.onToggleClub,
+    required this.onToggleCarry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final background = scheme.surfaceContainerHighest.withValues(alpha: 0.35);
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 160, maxWidth: 220),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: scheme.outline.withValues(alpha: 0.35)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Focus', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 12),
+              ToggleButtons(
+                borderRadius: BorderRadius.circular(14),
+                constraints: const BoxConstraints(minHeight: 36, minWidth: 60),
+                isSelected: [showClub, showCarry],
+                onPressed: (index) {
+                  if (index == 0) {
+                    onToggleClub();
+                  } else {
+                    onToggleCarry();
+                  }
+                },
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text('Club'),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text('Yardage'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+            ],
+          ),
+        ),
       ),
     );
   }
