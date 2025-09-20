@@ -29,8 +29,8 @@ class ShotAttempt {
   final Trajectory height;
   final CurveShape curveShape;
   final CurveMag curveMag;
-  final int endSideYards;       // +R / -L
-  final int endShortLongYards;  // +long / -short
+  final int endSideYards; // +R / -L
+  final int endShortLongYards; // +long / -short
   final AttemptResult result;
   final String? notes;
   const ShotAttempt({
@@ -63,6 +63,14 @@ class Session {
   });
 }
 
+class ClubYardageRange {
+  final int min;
+  final int max;
+  const ClubYardageRange({required this.min, required this.max});
+
+  bool get isValid => min > 0 && max >= min;
+}
+
 class UserPrefs {
   final Units units;
   final SkillLevel skill;
@@ -70,14 +78,17 @@ class UserPrefs {
   final GeneratorStrictness generatorStrictness;
   final bool showClubChip;
   final bool showCarryChip;
-  const UserPrefs({
+  final Map<Club, ClubYardageRange> yardages;
+  UserPrefs({
     this.units = Units.yards,
     this.skill = SkillLevel.intermediate,
-    required this.inBag,
+    required Set<Club> inBag,
     this.generatorStrictness = GeneratorStrictness.defaultStrict,
     this.showClubChip = true,
     this.showCarryChip = true,
-  });
+    Map<Club, ClubYardageRange> yardages = const <Club, ClubYardageRange>{},
+  })  : inBag = Set.unmodifiable(inBag),
+        yardages = Map.unmodifiable(yardages);
 
   UserPrefs copyWith({
     Units? units,
@@ -86,6 +97,7 @@ class UserPrefs {
     GeneratorStrictness? generatorStrictness,
     bool? showClubChip,
     bool? showCarryChip,
+    Map<Club, ClubYardageRange>? yardages,
   }) {
     return UserPrefs(
       units: units ?? this.units,
@@ -94,8 +106,11 @@ class UserPrefs {
       generatorStrictness: generatorStrictness ?? this.generatorStrictness,
       showClubChip: showClubChip ?? this.showClubChip,
       showCarryChip: showCarryChip ?? this.showCarryChip,
+      yardages: yardages ?? this.yardages,
     );
   }
 
   UserPrefs withInBag(Set<Club> newBag) => copyWith(inBag: newBag);
+  UserPrefs withYardages(Map<Club, ClubYardageRange> newYardages) =>
+      copyWith(yardages: newYardages);
 }

@@ -14,7 +14,12 @@ class PracticeService {
   PracticeService({required this.store});
 
   Future<ShotSpec> generateSpec(UserPrefs prefs) async {
-    final spec = _gen.generate(inBag: prefs.inBag, skill: prefs.skill, strictness: prefs.generatorStrictness);
+    final spec = _gen.generate(
+      inBag: prefs.inBag,
+      skill: prefs.skill,
+      strictness: prefs.generatorStrictness,
+      yardages: prefs.yardages,
+    );
     await store.putSpec(spec);
     return spec;
   }
@@ -56,6 +61,7 @@ class PracticeService {
       if (s != null) specsById[a.specId] = s;
     }
     final engine = InsightEngine();
-    return engine.compute(attempts: attempts, specsById: specsById, perClub: perClub);
+    return engine.compute(
+        attempts: attempts, specsById: specsById, perClub: perClub);
   }
 }

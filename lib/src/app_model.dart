@@ -23,8 +23,14 @@ class AppModel extends ChangeNotifier {
         service: PracticeService(store: DriftStore()), // <-- use Drift
         prefs: UserPrefs(
           inBag: {
-            Club.driver, Club.w3, Club.h4,
-            Club.i7, Club.i8, Club.i9, Club.pw, Club.sw,
+            Club.driver,
+            Club.w3,
+            Club.h4,
+            Club.i7,
+            Club.i8,
+            Club.i9,
+            Club.pw,
+            Club.sw,
           },
           skill: SkillLevel.intermediate,
         ),
@@ -92,7 +98,11 @@ class AppModel extends ChangeNotifier {
   void toggleClub(Club c, bool on) {
     final bag = {...prefs.inBag};
     on ? bag.add(c) : bag.remove(c);
-    prefs = prefs.withInBag(bag);
+    var showCarry = prefs.showCarryChip;
+    if (showCarry && !_bagHasCompleteRanges(bag, prefs.yardages)) {
+      showCarry = false;
+    }
+    prefs = prefs.copyWith(inBag: bag, showCarryChip: showCarry);
     notifyListeners();
   }
 
@@ -102,9 +112,50 @@ class AppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setShowCarryChip(bool on) {
-    if (!on && !prefs.showClubChip) return;
+  bool setShowCarryChip(bool on) {
+    if (!on && !prefs.showClubChip) return false;
+    if (on && !_bagHasCompleteRanges(prefs.inBag, prefs.yardages)) {
+      return false;
+    }
     prefs = prefs.copyWith(showCarryChip: on);
     notifyListeners();
+    return true;
+  }
+
+  bool updateClubYardageRange(Club club, {int? min, int? max}) {
+    final yardages = Map<Club, ClubYardageRange>.from(prefs.yardages);
+    final hasRange = min != null && max != null && min > 0 && max >= min;
+    if (hasRange) {
+      yardages[club] = ClubYardageRange(min: min, max: max);
+    } else {
+      yardages.remove(club);
+    }
+
+    var showCarry = prefs.showCarryChip;
+    if (showCarry && !_bagHasCompleteRanges(prefs.inBag, yardages)) {
+      showCarry = false;
+    }
+
+    prefs = prefs.copyWith(yardages: yardages, showCarryChip: showCarry);
+    notifyListeners();
+    return hasRange;
+  }
+
+  bool get hasCompleteYardages =>
+      _bagHasCompleteRanges(prefs.inBag, prefs.yardages);
+
+  List<Club> get clubsMissingYardages => prefs.inBag
+      .where((club) => !(prefs.yardages[club]?.isValid ?? false))
+      .toList(growable: false);
+
+  static bool _bagHasCompleteRanges(
+      Set<Club> bag, Map<Club, ClubYardageRange> yardages) {
+    for (final club in bag) {
+      final range = yardages[club];
+      if (range == null || !range.isValid) {
+        return false;
+      }
+    }
+    return true;
   }
 }

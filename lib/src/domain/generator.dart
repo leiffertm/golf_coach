@@ -7,32 +7,51 @@ import 'club_distance_table.dart';
 class ShotGenerator {
   final IdGen _idGen;
   final Random _rng;
-  ShotGenerator([int? seed]) : _idGen = IdGen(seed), _rng = Random(seed);
+  ShotGenerator([int? seed])
+      : _idGen = IdGen(seed),
+        _rng = Random(seed);
 
   ShotSpec generate({
     required Set<Club> inBag,
     required SkillLevel skill,
     GeneratorStrictness strictness = GeneratorStrictness.defaultStrict,
+    Map<Club, ClubYardageRange> yardages = const <Club, ClubYardageRange>{},
   }) {
     if (inBag.isEmpty) {
       throw StateError('No clubs in bag');
     }
     final club = inBag.elementAt(_rng.nextInt(inBag.length));
-    final (min, max) = ClubDistanceTable.range(club, skill);
+    final (defaultMin, defaultMax) = ClubDistanceTable.range(club, skill);
+    final customRange = yardages[club];
+    final min = customRange?.min ?? defaultMin;
+    final max = customRange?.max ?? defaultMax;
     final bandTightener = switch (strictness) {
       GeneratorStrictness.relaxed => 0.0,
       GeneratorStrictness.defaultStrict => 0.15,
       GeneratorStrictness.strict => 0.3,
     };
-    final span = (max - min).toDouble();
-    final tightSpan = (span * (1.0 - bandTightener)).clamp(12, span);
-    final low = min + ((span - tightSpan) / 2).round();
-    final high = (low + tightSpan).round();
+    int low;
+    int high;
+    if (max <= min) {
+      low = min;
+      high = min;
+    } else {
+      final span = (max - min).toDouble();
+      final tightSpan = (span * (1.0 - bandTightener)).clamp(12, span);
+      low = min + ((span - tightSpan) / 2).round();
+      high = (low + tightSpan).round();
+    }
     final carry = _randInt(low, high);
 
-    final trajectory = _pick<Trajectory>([(Trajectory.normal, .6), (Trajectory.low, .2), (Trajectory.high, .2)]);
-    final curveShape = _pick<CurveShape>([(CurveShape.draw, .35), (CurveShape.straight, .30), (CurveShape.fade, .35)]);
-    final curveMag = _pick<CurveMag>([(CurveMag.small, .5), (CurveMag.medium, .35), (CurveMag.large, .15)]);
+    final trajectory = _pick<Trajectory>(
+        [(Trajectory.normal, .6), (Trajectory.low, .2), (Trajectory.high, .2)]);
+    final curveShape = _pick<CurveShape>([
+      (CurveShape.draw, .35),
+      (CurveShape.straight, .30),
+      (CurveShape.fade, .35)
+    ]);
+    final curveMag = _pick<CurveMag>(
+        [(CurveMag.small, .5), (CurveMag.medium, .35), (CurveMag.large, .15)]);
 
     return ShotSpec(
       id: _idGen.next('spec'),
