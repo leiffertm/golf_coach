@@ -28,43 +28,49 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.casino),
+                    label: const Text('Generate Shot'),
+                    onPressed: () async {
+                      await model.generate();
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const VSpacer(16),
+            Expanded(
+              child: spec == null
+                  ? const EmptyState(
+                      title: 'No shot yet',
+                      message: 'Tap “Generate Shot” to get a random target to hit.',
+                    )
+                  : _SpecCard(
+                      spec: spec,
+                      skill: model.prefs.skill,
+                      showClub: model.prefs.showClubChip,
+                      showCarry: model.prefs.showCarryChip,
+                    ),
+            ),
+            if (spec != null) ...[
+              const VSpacer(12),
               Row(
                 children: [
                   Expanded(
                     child: FilledButton.icon(
-                      icon: const Icon(Icons.casino),
-                      label: const Text('Generate Shot'),
-                      onPressed: () async {
-                        await model.generate();
+                      icon: const Icon(Icons.edit_note),
+                      label: const Text('Log Attempt'),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(LogAttemptScreen.route);
                       },
                     ),
                   ),
-                  const HSpacer(12),
-                  IconButton(
-                    tooltip: 'Quick log',
-                    onPressed: spec == null ? null : () => Navigator.of(context).pushNamed(LogAttemptScreen.route),
-                    icon: const Icon(Icons.edit_note),
-                  ),
                 ],
               ),
-              const VSpacer(16),
-              if (spec == null)
-                const Expanded(
-                  child: EmptyState(
-                    title: 'No shot yet',
-                    message: 'Tap “Generate Shot” to get a random target to hit.',
-                  ),
-                )
-              else
-                // Keep Flex layout consistent with the null branch.
-                Expanded(
-                  child: _SpecCard(
-                    spec: spec,
-                    skill: model.prefs.skill,
-                    showClub: model.prefs.showClubChip,
-                    showCarry: model.prefs.showCarryChip,
-                  ),
-                ),
+            ],
               const VSpacer(16),
               _QuickStats(model: model),
               const VSpacer(8),
@@ -86,40 +92,52 @@ class _SpecCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tiles = <Widget>[
+      if (showClub) ClubChip(club: spec.club),
+      if (showCarry) CarryChip(spec: spec, skill: skill),
+      TrajectoryChip(trajectory: spec.trajectory),
+      CurveChip(shape: spec.curveShape, magnitude: spec.curveMag),
+    ];
+
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Target Shot', style: Theme.of(context).textTheme.titleLarge),
-          const VSpacer(12),
-          if (showClub || showCarry) ...[
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              children: [
-                if (showClub) ClubChip(club: spec.club),
-                if (showCarry) CarryChip(spec: spec, skill: skill),
-              ],
-            ),
-            const VSpacer(20),
-          ],
-          Wrap(spacing: 12, runSpacing: 8, children: [
-            TrajectoryChip(trajectory: spec.trajectory),
-            CurveChip(shape: spec.curveShape, magnitude: spec.curveMag),
-          ]),
-          const VSpacer(12),
-          Row(
-            children: [
-              FilledButton.icon(
-                icon: const Icon(Icons.edit_note),
-                label: const Text('Log Attempt'),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(LogAttemptScreen.route);
-                },
+      margin: EdgeInsets.zero,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          const horizontalPadding = 32.0; // 16 on each side
+          const verticalPadding = 32.0; // 16 top/bottom
+          const crossAxisSpacing = 12.0;
+          const mainAxisSpacing = 12.0;
+          const crossAxisCount = 2;
+          final rowCount = tiles.isEmpty ? 1 : ((tiles.length + crossAxisCount - 1) ~/ crossAxisCount);
+
+          final availableWidth = (constraints.maxWidth - horizontalPadding -
+                  (crossAxisCount - 1) * crossAxisSpacing)
+              .clamp(0.0, double.infinity);
+          final availableHeight = (constraints.maxHeight - verticalPadding -
+                  (rowCount - 1) * mainAxisSpacing)
+              .clamp(0.0, double.infinity);
+
+          final itemWidth = crossAxisCount > 0 ? availableWidth / crossAxisCount : availableWidth;
+          final itemHeight = rowCount > 0 ? availableHeight / rowCount : availableHeight;
+          final aspectRatio = itemHeight > 0 ? itemWidth / itemHeight : 1.0;
+
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: mainAxisSpacing,
+                crossAxisSpacing: crossAxisSpacing,
+                childAspectRatio: aspectRatio,
               ),
-            ],
-          ),
-        ]),
+              itemCount: tiles.length,
+              itemBuilder: (context, index) => SizedBox.expand(
+                child: Center(child: tiles[index]),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

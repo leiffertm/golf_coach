@@ -1,6 +1,7 @@
+// ignore_for_file: unused_element_parameter
+
 import 'package:flutter/material.dart';
 
-import '../domain/club_distance_table.dart';
 import '../domain/enums.dart';
 import '../domain/models.dart';
 
@@ -15,7 +16,7 @@ class ClubChip extends StatelessWidget {
     return _SpecChip(
       color: color,
       label: club.label,
-      visual: Icon(Icons.sports_golf, size: 16, color: color),
+      enlarged: true,
     );
   }
 }
@@ -29,13 +30,10 @@ class CarryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final base = scheme.primary;
-    final (min, max) = ClubDistanceTable.range(spec.club, skill);
-    final span = (max - min).clamp(1, 400);
-    final fill = ((spec.carryYards - min) / span).clamp(0.0, 1.0);
     return _SpecChip(
       color: base,
       label: '${spec.carryYards} yds',
-      visual: _CarryBar(fill: fill, color: base),
+      enlarged: true,
     );
   }
 }
@@ -48,15 +46,10 @@ class TrajectoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final color = _trajectoryColor(trajectory, scheme);
-    final icon = switch (trajectory) {
-      Trajectory.low => Icons.south_east,
-      Trajectory.normal => Icons.arrow_outward,
-      Trajectory.high => Icons.north_east,
-    };
     return _SpecChip(
       color: color,
-      label: trajectory.name,
-      visual: Icon(icon, size: 16, color: color),
+      label: '${trajectory.name} height',
+      enlarged: true,
     );
   }
 }
@@ -80,7 +73,7 @@ class CurveChip extends StatelessWidget {
     return _SpecChip(
       color: color,
       label: isStraight ? shape.name : '${magnitude.name} ${shape.name}',
-      visual: _CurveVisual(shape: shape, magnitude: magnitude, color: color),
+      enlarged: true,
     );
   }
 }
@@ -88,8 +81,9 @@ class CurveChip extends StatelessWidget {
 class _SpecChip extends StatelessWidget {
   final Color color;
   final String label;
-  final Widget visual;
-  const _SpecChip({required this.color, required this.label, required this.visual});
+  final Widget? visual;
+  final bool enlarged;
+  const _SpecChip({required this.color, required this.label, this.visual, this.enlarged = false});
 
   @override
   Widget build(BuildContext context) {
@@ -101,114 +95,29 @@ class _SpecChip extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: enlarged ? 18 : 12,
+          vertical: enlarged ? 12 : 8,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            visual,
-            const SizedBox(width: 8),
-            Text(label, style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CarryBar extends StatelessWidget {
-  final double fill;
-  final Color color;
-  const _CarryBar({required this.fill, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 44,
-      height: 8,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(decoration: BoxDecoration(color: color.withValues(alpha: 0.18))),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: FractionallySizedBox(
-                widthFactor: fill,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(gradient: LinearGradient(colors: [color.withValues(alpha: 0.4), color])),
-                ),
+            if (visual != null) ...[
+              visual!,
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.w600,
+                fontSize: enlarged ? 16 : 14,
               ),
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-class _CurveVisual extends StatelessWidget {
-  final CurveShape shape;
-  final CurveMag magnitude;
-  final Color color;
-  const _CurveVisual({required this.shape, required this.magnitude, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(44, 16),
-      painter: _CurvePainter(shape: shape, magnitude: magnitude, color: color),
-    );
-  }
-}
-
-class _CurvePainter extends CustomPainter {
-  final CurveShape shape;
-  final CurveMag magnitude;
-  final Color color;
-  _CurvePainter({required this.shape, required this.magnitude, required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = shape == CurveShape.straight
-          ? 3.0
-          : switch (magnitude) {
-              CurveMag.small => 2.5,
-              CurveMag.medium => 3.5,
-              CurveMag.large => 4.5,
-            }
-      ..color = color;
-
-    final path = Path();
-    final height = size.height;
-    final width = size.width;
-
-    switch (shape) {
-      case CurveShape.straight:
-        path.moveTo(0, height / 2);
-        path.lineTo(width, height / 2);
-        break;
-      case CurveShape.draw:
-        path.moveTo(0, height * 0.8);
-        path.quadraticBezierTo(width * 0.45, height * 0.3, width, height * 0.45);
-        break;
-      case CurveShape.fade:
-        path.moveTo(0, height * 0.45);
-        path.quadraticBezierTo(width * 0.55, height * 0.2, width, height * 0.8);
-        break;
-    }
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _CurvePainter oldDelegate) {
-    return oldDelegate.shape != shape ||
-        oldDelegate.magnitude != magnitude ||
-        oldDelegate.color != color;
   }
 }
 

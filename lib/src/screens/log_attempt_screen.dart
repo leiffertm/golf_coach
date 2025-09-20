@@ -127,7 +127,6 @@ class _LogAttemptScreenState extends State<LogAttemptScreen> {
                     FilledButton.icon(
                       icon: const Icon(Icons.save),
                       label: const Text('Save Attempt'),
-                      // lib/src/screens/log_attempt_screen.dart (inside FilledButton.icon onPressed)
                       onPressed: () async {
                         if (!_form.currentState!.validate()) return;
 
@@ -142,23 +141,10 @@ class _LogAttemptScreenState extends State<LogAttemptScreen> {
                               _notesCtrl.text.isEmpty ? null : _notesCtrl.text,
                         );
 
-                        // Guard the SAME BuildContext you use below
-                        if (!context.mounted) return;
+                        await widget.model.generate();
 
-                        final score = widget.model.lastScore?.score ?? 0;
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: const Text('Attempt Saved'),
-                            content: Text('Score: $score / 100'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('OK'),
-                              ),
-                            ],
-                          ),
-                        );
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop();
                       },
                     ),
                   ],
