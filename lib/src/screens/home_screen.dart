@@ -1,5 +1,6 @@
 // file: lib/src/screens/home_screen.dart
 import 'package:flutter/material.dart';
+// import 'package:golf_coach/src/widgets/club_chip.dart';
 import '../app_model.dart';
 // import '../widgets/kv.dart';
 // import '../widgets/segmented_enum.dart';
@@ -103,10 +104,10 @@ class _SpecCard extends StatelessWidget {
       margin: EdgeInsets.zero,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          const horizontalPadding = 32.0; // 16 on each side
-          const verticalPadding = 32.0; // 16 top/bottom
-          const crossAxisSpacing = 12.0;
-          const mainAxisSpacing = 12.0;
+          const horizontalPadding = 0; // 16 on each side
+          const verticalPadding = 0; // 16 top/bottom
+          const crossAxisSpacing = 0.0;
+          const mainAxisSpacing = 0.0;
           const crossAxisCount = 2;
           final rowCount = tiles.isEmpty ? 1 : ((tiles.length + crossAxisCount - 1) ~/ crossAxisCount);
 
@@ -122,7 +123,7 @@ class _SpecCard extends StatelessWidget {
           final aspectRatio = itemHeight > 0 ? itemWidth / itemHeight : 1.0;
 
           return Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(0),
             child: GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -169,24 +170,21 @@ class _TopInsights extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Recent Insights', style: Theme.of(context).textTheme.titleMedium),
-          const VSpacer(8),
-          ...model.insights.take(3).map((p) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.lightbulb_outline, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(p.toUserString())),
-                  ],
-                ),
-              )),
-        ]),
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Recent Insights', style: Theme.of(context).textTheme.titleMedium),
+        const VSpacer(8),
+        ...model.insights.take(3).map((p) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.lightbulb_outline, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(p.toUserString())),
+                ],
+              ),
+            )),
+      ]),
     );
   }
 }

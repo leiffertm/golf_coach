@@ -88,35 +88,23 @@ class _SpecChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).colorScheme.onSurface;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: enlarged ? 18 : 12,
-          vertical: enlarged ? 12 : 8,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (visual != null) ...[
+          visual!,
+          const SizedBox(width: 8),
+        ],
+        Text(
+          label,
+          style: TextStyle(
+            height: 4,
+            color: textColor,
+            fontWeight: FontWeight.w600,
+            fontSize: enlarged ? 32 : 32,
+          ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (visual != null) ...[
-              visual!,
-              const SizedBox(width: 8),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: enlarged ? 16 : 14,
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }
