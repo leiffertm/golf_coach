@@ -7,6 +7,9 @@ environment:
   sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
+  auto_size_text: ^3.0.0
+  flutter_riverpod: ^2.3.6
+  flutter_material_pickers: ^3.0.0
   drift: ^2.18.0
   sqlite3_flutter_libs: ^0.5.24
   path_provider: ^2.1.4

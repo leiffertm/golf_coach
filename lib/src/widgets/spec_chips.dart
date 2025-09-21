@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../domain/enums.dart';
 import '../domain/models.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+
 
 class ClubChip extends StatelessWidget {
   final Club club;
@@ -87,24 +89,23 @@ class _SpecChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).colorScheme.onSurface;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (visual != null) ...[
-          visual!,
-          const SizedBox(width: 8),
-        ],
-        Text(
-          label,
-          style: TextStyle(
-            height: 4,
-            color: textColor,
-            fontWeight: FontWeight.w600,
-            fontSize: enlarged ? 32 : 32,
+    // final textColor = Theme.of(context).colorScheme.onSurface;
+    return Expanded(
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          if (visual != null) ...[
+            visual!,
+            const SizedBox(width: 8),
+          ],
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Text(label),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
