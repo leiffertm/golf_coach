@@ -51,7 +51,6 @@ class InsightEngine {
   }) {
     final map = <PatternKey, List<(double, double, bool)>>{}; // (right, short, opposite)
     for (final a in attempts) {
-      if (a.result != AttemptResult.executed) continue;
       final spec = specsById[a.specId];
       if (spec == null) continue;
       final key = PatternKey(

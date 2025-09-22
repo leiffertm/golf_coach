@@ -52,7 +52,6 @@ class DriftStore implements Store {
       curveMag: d.Value(_toIndex(attempt.curveMag)),
       endSideYards: d.Value(attempt.endSideYards),
       endShortLongYards: d.Value(attempt.endShortLongYards),
-      result: d.Value(_toIndex(attempt.result)),
       notes: d.Value(attempt.notes),
     ));
   }
@@ -74,7 +73,6 @@ class DriftStore implements Store {
           curveMag: _fromIndex(CurveMag.values, r.curveMag),
           endSideYards: r.endSideYards,
           endShortLongYards: r.endShortLongYards,
-          result: _fromIndex(domain.AttemptResult.values, r.result),
           notes: r.notes,
         ),
     ];

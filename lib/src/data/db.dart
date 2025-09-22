@@ -29,7 +29,6 @@ class ShotAttempts extends Table {
   IntColumn get curveMag => integer()();
   IntColumn get endSideYards => integer()();
   IntColumn get endShortLongYards => integer()();
-  IntColumn get result => integer()();
   TextColumn get notes => text().nullable()();
   @override
   Set<Column> get primaryKey => {id};

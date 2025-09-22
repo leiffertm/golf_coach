@@ -418,11 +418,6 @@ class $ShotAttemptsTable extends ShotAttempts
   late final GeneratedColumn<int> endShortLongYards = GeneratedColumn<int>(
       'end_short_long_yards', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _resultMeta = const VerificationMeta('result');
-  @override
-  late final GeneratedColumn<int> result = GeneratedColumn<int>(
-      'result', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -439,7 +434,6 @@ class $ShotAttemptsTable extends ShotAttempts
         curveMag,
         endSideYards,
         endShortLongYards,
-        result,
         notes
       ];
   @override
@@ -515,12 +509,6 @@ class $ShotAttemptsTable extends ShotAttempts
     } else if (isInserting) {
       context.missing(_endShortLongYardsMeta);
     }
-    if (data.containsKey('result')) {
-      context.handle(_resultMeta,
-          result.isAcceptableOrUnknown(data['result']!, _resultMeta));
-    } else if (isInserting) {
-      context.missing(_resultMeta);
-    }
     if (data.containsKey('notes')) {
       context.handle(
           _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
@@ -552,8 +540,6 @@ class $ShotAttemptsTable extends ShotAttempts
           .read(DriftSqlType.int, data['${effectivePrefix}end_side_yards'])!,
       endShortLongYards: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}end_short_long_yards'])!,
-      result: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}result'])!,
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
     );
@@ -575,7 +561,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
   final int curveMag;
   final int endSideYards;
   final int endShortLongYards;
-  final int result;
   final String? notes;
   const ShotAttemptRow(
       {required this.id,
@@ -587,7 +572,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
       required this.curveMag,
       required this.endSideYards,
       required this.endShortLongYards,
-      required this.result,
       this.notes});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -601,7 +585,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
     map['curve_mag'] = Variable<int>(curveMag);
     map['end_side_yards'] = Variable<int>(endSideYards);
     map['end_short_long_yards'] = Variable<int>(endShortLongYards);
-    map['result'] = Variable<int>(result);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -619,7 +602,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
       curveMag: Value(curveMag),
       endSideYards: Value(endSideYards),
       endShortLongYards: Value(endShortLongYards),
-      result: Value(result),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
     );
@@ -638,7 +620,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
       curveMag: serializer.fromJson<int>(json['curveMag']),
       endSideYards: serializer.fromJson<int>(json['endSideYards']),
       endShortLongYards: serializer.fromJson<int>(json['endShortLongYards']),
-      result: serializer.fromJson<int>(json['result']),
       notes: serializer.fromJson<String?>(json['notes']),
     );
   }
@@ -655,7 +636,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
       'curveMag': serializer.toJson<int>(curveMag),
       'endSideYards': serializer.toJson<int>(endSideYards),
       'endShortLongYards': serializer.toJson<int>(endShortLongYards),
-      'result': serializer.toJson<int>(result),
       'notes': serializer.toJson<String?>(notes),
     };
   }
@@ -670,7 +650,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
           int? curveMag,
           int? endSideYards,
           int? endShortLongYards,
-          int? result,
           Value<String?> notes = const Value.absent()}) =>
       ShotAttemptRow(
         id: id ?? this.id,
@@ -682,7 +661,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
         curveMag: curveMag ?? this.curveMag,
         endSideYards: endSideYards ?? this.endSideYards,
         endShortLongYards: endShortLongYards ?? this.endShortLongYards,
-        result: result ?? this.result,
         notes: notes.present ? notes.value : this.notes,
       );
   ShotAttemptRow copyWithCompanion(ShotAttemptsCompanion data) {
@@ -704,7 +682,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
       endShortLongYards: data.endShortLongYards.present
           ? data.endShortLongYards.value
           : this.endShortLongYards,
-      result: data.result.present ? data.result.value : this.result,
       notes: data.notes.present ? data.notes.value : this.notes,
     );
   }
@@ -721,25 +698,14 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
           ..write('curveMag: $curveMag, ')
           ..write('endSideYards: $endSideYards, ')
           ..write('endShortLongYards: $endShortLongYards, ')
-          ..write('result: $result, ')
           ..write('notes: $notes')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      specId,
-      timestampMillis,
-      carryYards,
-      height,
-      curveShape,
-      curveMag,
-      endSideYards,
-      endShortLongYards,
-      result,
-      notes);
+  int get hashCode => Object.hash(id, specId, timestampMillis, carryYards,
+      height, curveShape, curveMag, endSideYards, endShortLongYards, notes);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -753,7 +719,6 @@ class ShotAttemptRow extends DataClass implements Insertable<ShotAttemptRow> {
           other.curveMag == this.curveMag &&
           other.endSideYards == this.endSideYards &&
           other.endShortLongYards == this.endShortLongYards &&
-          other.result == this.result &&
           other.notes == this.notes);
 }
 
@@ -767,7 +732,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
   final Value<int> curveMag;
   final Value<int> endSideYards;
   final Value<int> endShortLongYards;
-  final Value<int> result;
   final Value<String?> notes;
   final Value<int> rowid;
   const ShotAttemptsCompanion({
@@ -780,7 +744,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
     this.curveMag = const Value.absent(),
     this.endSideYards = const Value.absent(),
     this.endShortLongYards = const Value.absent(),
-    this.result = const Value.absent(),
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -794,7 +757,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
     required int curveMag,
     required int endSideYards,
     required int endShortLongYards,
-    required int result,
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -805,8 +767,7 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
         curveShape = Value(curveShape),
         curveMag = Value(curveMag),
         endSideYards = Value(endSideYards),
-        endShortLongYards = Value(endShortLongYards),
-        result = Value(result);
+        endShortLongYards = Value(endShortLongYards);
   static Insertable<ShotAttemptRow> custom({
     Expression<String>? id,
     Expression<String>? specId,
@@ -817,7 +778,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
     Expression<int>? curveMag,
     Expression<int>? endSideYards,
     Expression<int>? endShortLongYards,
-    Expression<int>? result,
     Expression<String>? notes,
     Expression<int>? rowid,
   }) {
@@ -831,7 +791,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
       if (curveMag != null) 'curve_mag': curveMag,
       if (endSideYards != null) 'end_side_yards': endSideYards,
       if (endShortLongYards != null) 'end_short_long_yards': endShortLongYards,
-      if (result != null) 'result': result,
       if (notes != null) 'notes': notes,
       if (rowid != null) 'rowid': rowid,
     });
@@ -847,7 +806,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
       Value<int>? curveMag,
       Value<int>? endSideYards,
       Value<int>? endShortLongYards,
-      Value<int>? result,
       Value<String?>? notes,
       Value<int>? rowid}) {
     return ShotAttemptsCompanion(
@@ -860,7 +818,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
       curveMag: curveMag ?? this.curveMag,
       endSideYards: endSideYards ?? this.endSideYards,
       endShortLongYards: endShortLongYards ?? this.endShortLongYards,
-      result: result ?? this.result,
       notes: notes ?? this.notes,
       rowid: rowid ?? this.rowid,
     );
@@ -896,9 +853,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
     if (endShortLongYards.present) {
       map['end_short_long_yards'] = Variable<int>(endShortLongYards.value);
     }
-    if (result.present) {
-      map['result'] = Variable<int>(result.value);
-    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -920,7 +874,6 @@ class ShotAttemptsCompanion extends UpdateCompanion<ShotAttemptRow> {
           ..write('curveMag: $curveMag, ')
           ..write('endSideYards: $endSideYards, ')
           ..write('endShortLongYards: $endShortLongYards, ')
-          ..write('result: $result, ')
           ..write('notes: $notes, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1219,7 +1172,6 @@ typedef $$ShotAttemptsTableCreateCompanionBuilder = ShotAttemptsCompanion
   required int curveMag,
   required int endSideYards,
   required int endShortLongYards,
-  required int result,
   Value<String?> notes,
   Value<int> rowid,
 });
@@ -1234,7 +1186,6 @@ typedef $$ShotAttemptsTableUpdateCompanionBuilder = ShotAttemptsCompanion
   Value<int> curveMag,
   Value<int> endSideYards,
   Value<int> endShortLongYards,
-  Value<int> result,
   Value<String?> notes,
   Value<int> rowid,
 });
@@ -1292,9 +1243,6 @@ class $$ShotAttemptsTableFilterComposer
   ColumnFilters<int> get endShortLongYards => $composableBuilder(
       column: $table.endShortLongYards,
       builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get result => $composableBuilder(
-      column: $table.result, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
@@ -1356,9 +1304,6 @@ class $$ShotAttemptsTableOrderingComposer
       column: $table.endShortLongYards,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get result => $composableBuilder(
-      column: $table.result, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
 
@@ -1416,9 +1361,6 @@ class $$ShotAttemptsTableAnnotationComposer
   GeneratedColumn<int> get endShortLongYards => $composableBuilder(
       column: $table.endShortLongYards, builder: (column) => column);
 
-  GeneratedColumn<int> get result =>
-      $composableBuilder(column: $table.result, builder: (column) => column);
-
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
@@ -1475,7 +1417,6 @@ class $$ShotAttemptsTableTableManager extends RootTableManager<
             Value<int> curveMag = const Value.absent(),
             Value<int> endSideYards = const Value.absent(),
             Value<int> endShortLongYards = const Value.absent(),
-            Value<int> result = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -1489,7 +1430,6 @@ class $$ShotAttemptsTableTableManager extends RootTableManager<
             curveMag: curveMag,
             endSideYards: endSideYards,
             endShortLongYards: endShortLongYards,
-            result: result,
             notes: notes,
             rowid: rowid,
           ),
@@ -1503,7 +1443,6 @@ class $$ShotAttemptsTableTableManager extends RootTableManager<
             required int curveMag,
             required int endSideYards,
             required int endShortLongYards,
-            required int result,
             Value<String?> notes = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -1517,7 +1456,6 @@ class $$ShotAttemptsTableTableManager extends RootTableManager<
             curveMag: curveMag,
             endSideYards: endSideYards,
             endShortLongYards: endShortLongYards,
-            result: result,
             notes: notes,
             rowid: rowid,
           ),

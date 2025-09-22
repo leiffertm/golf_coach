@@ -31,7 +31,6 @@ class PracticeService {
     required CurveShape curveShape,
     required CurveMag curveMag,
     required int endSideYards,
-    required AttemptResult result,
     String? notes,
     required SkillLevel skill,
   }) async {
@@ -45,7 +44,6 @@ class PracticeService {
       curveMag: curveMag,
       endSideYards: endSideYards,
       endShortLongYards: carryYards - spec.carryYards,
-      result: result,
       notes: notes,
     );
     await store.putAttempt(attempt);

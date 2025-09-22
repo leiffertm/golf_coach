@@ -16,15 +16,12 @@ class ScoreResult {
 
 class Scoring {
   static ScoreResult score({required SkillLevel skill, required ShotSpec spec, required ShotAttempt attempt}) {
-    if (attempt.result != AttemptResult.executed) {
-      return const ScoreResult(score: 0, eCarry: 0, eHeight: 0, eCurveShape: 0, eCurveMag: 0, eSide: 0);
-    }
     final eCarry = (attempt.carryYards - spec.carryYards).abs().toDouble();
     final eHeight = _heightErr(attempt.height, spec.trajectory);
     final eCurveShape = _curveShapeErr(attempt.curveShape, spec.curveShape);
 
     final magDelta = ([_mag(attempt.curveMag), _mag(spec.curveMag)]..sort()).reduce((a, b) => (b - a).abs());
-    final double eCurveMag = magDelta == 0 ? 0.0 : (magDelta == 1 ? 2.0 : 4.0); // <-- must be double
+    final double eCurveMag = magDelta == 0 ? 0.0 : (magDelta == 1 ? 2.0 : 4.0);
 
     final targetSide = switch (spec.curveMag) {
           CurveMag.small => 5,

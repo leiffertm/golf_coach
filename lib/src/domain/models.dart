@@ -19,7 +19,7 @@ class ShotSpec {
   });
 }
 
-enum AttemptResult { executed, mulligan, aborted }
+
 
 class ShotAttempt {
   final Id id;
@@ -29,9 +29,8 @@ class ShotAttempt {
   final Trajectory height;
   final CurveShape curveShape;
   final CurveMag curveMag;
-  final int endSideYards; // +R / -L
-  final int endShortLongYards; // +long / -short
-  final AttemptResult result;
+  final int endSideYards;       // +R / -L
+  final int endShortLongYards;  // +long / -short
   final String? notes;
   const ShotAttempt({
     required this.id,
@@ -43,7 +42,6 @@ class ShotAttempt {
     required this.curveMag,
     required this.endSideYards,
     required this.endShortLongYards,
-    required this.result,
     this.notes,
   });
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/enums.dart';
 import '../domain/models.dart';
-import 'package:auto_size_text/auto_size_text.dart';
+// import 'package:auto_size_text/auto_size_text.dart';
 
 
 class ClubChip extends StatelessWidget {

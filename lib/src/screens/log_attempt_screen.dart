@@ -4,7 +4,7 @@ import '../widgets/spacer.dart';
 import '../widgets/segmented_enum.dart';
 import '../utils/validators.dart';
 import '../domain/enums.dart';
-import '../domain/models.dart'; // <-- required for AttemptResult
+// ...existing code...
 
 class LogAttemptScreen extends StatefulWidget {
   static const route = '/log';
@@ -24,7 +24,7 @@ class _LogAttemptScreenState extends State<LogAttemptScreen> {
   Trajectory _height = Trajectory.normal;
   CurveShape _shape = CurveShape.straight;
   CurveMag _mag = CurveMag.small;
-  AttemptResult _result = AttemptResult.executed;
+  // ...existing code...
 
   @override
   void initState() {
@@ -104,16 +104,7 @@ class _LogAttemptScreenState extends State<LogAttemptScreen> {
                       keyboardType: TextInputType.number,
                       validator: Validators.requiredIntAllowNeg,
                     ),
-                    const VSpacer(12),
-                    DropdownButtonFormField<AttemptResult>(
-                      initialValue: _result,
-                      items: AttemptResult.values
-                          .map((r) =>
-                              DropdownMenuItem(value: r, child: Text(r.name)))
-                          .toList(),
-                      onChanged: (r) => setState(() => _result = r!),
-                      decoration: const InputDecoration(labelText: 'Result'),
-                    ),
+                    // ...existing code...
                     const VSpacer(12),
                     TextFormField(
                       controller: _notesCtrl,
@@ -136,7 +127,6 @@ class _LogAttemptScreenState extends State<LogAttemptScreen> {
                           curveShape: _shape,
                           curveMag: _mag,
                           endSide: int.parse(_sideCtrl.text),
-                          result: _result,
                           notes:
                               _notesCtrl.text.isEmpty ? null : _notesCtrl.text,
                         );

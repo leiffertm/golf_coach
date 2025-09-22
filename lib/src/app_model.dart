@@ -47,7 +47,6 @@ class AppModel extends ChangeNotifier {
     required CurveShape curveShape,
     required CurveMag curveMag,
     required int endSide,
-    required AttemptResult result,
     String? notes,
   }) async {
     final spec = currentSpec;
@@ -59,7 +58,6 @@ class AppModel extends ChangeNotifier {
       curveShape: curveShape,
       curveMag: curveMag,
       endSideYards: endSide,
-      result: result,
       notes: notes,
       skill: prefs.skill,
     );
