@@ -18,7 +18,6 @@ class ClubChip extends StatelessWidget {
     return _SpecChip(
       color: color,
       label: club.label,
-      enlarged: true,
     );
   }
 }
@@ -35,7 +34,6 @@ class CarryChip extends StatelessWidget {
     return _SpecChip(
       color: base,
       label: '${spec.carryYards} yds',
-      enlarged: true,
     );
   }
 }
@@ -51,7 +49,6 @@ class TrajectoryChip extends StatelessWidget {
     return _SpecChip(
       color: color,
       label: '${trajectory.name} height',
-      enlarged: true,
     );
   }
 }
@@ -75,7 +72,6 @@ class CurveChip extends StatelessWidget {
     return _SpecChip(
       color: color,
       label: isStraight ? shape.name : '${magnitude.name} ${shape.name}',
-      enlarged: true,
     );
   }
 }
@@ -84,24 +80,39 @@ class _SpecChip extends StatelessWidget {
   final Color color;
   final String label;
   final Widget? visual;
-  final bool enlarged;
-  const _SpecChip({required this.color, required this.label, this.visual, this.enlarged = false});
+  const _SpecChip({required this.color, required this.label, this.visual});
 
   @override
   Widget build(BuildContext context) {
-    // final textColor = Theme.of(context).colorScheme.onSurface;
-    return Expanded(
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    
+    return Container(
+      margin: const EdgeInsets.all(2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+      ),
       child: Row(
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (visual != null) ...[
             visual!,
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
           ],
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: Text(label),
+          Flexible(
+            child: Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: textColor,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

@@ -41,7 +41,7 @@ class DriftStore implements Store {
 
   // ---- Attempts ----
   @override
-  Future<void> putAttempt(domain.ShotAttempt attempt) async {
+  Future<void> putAttempt(domain.ShotAttempt attempt, {int? score}) async {
     await db.into(db.shotAttempts).insertOnConflictUpdate(ShotAttemptsCompanion(
       id: d.Value(attempt.id),
       specId: d.Value(attempt.specId),
@@ -52,6 +52,7 @@ class DriftStore implements Store {
       curveMag: d.Value(_toIndex(attempt.curveMag)),
       endSideYards: d.Value(attempt.endSideYards),
       endShortLongYards: d.Value(attempt.endShortLongYards),
+      result: d.Value(score ?? 0), // Use provided score or default to 0
       notes: d.Value(attempt.notes),
     ));
   }

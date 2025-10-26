@@ -29,6 +29,7 @@ class ShotAttempts extends Table {
   IntColumn get curveMag => integer()();
   IntColumn get endSideYards => integer()();
   IntColumn get endShortLongYards => integer()();
+  IntColumn get result => integer()();
   TextColumn get notes => text().nullable()();
   @override
   Set<Column> get primaryKey => {id};
@@ -38,7 +39,28 @@ class ShotAttempts extends Table {
 class AppDb extends _$AppDb {
   AppDb() : super(_open());
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+  
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        // Check if result column already exists before adding it
+        final result = await m.database.customSelect(
+          "PRAGMA table_info(shot_attempts)",
+        ).get();
+        
+        final hasResultColumn = result.any((row) => row.data['name'] == 'result');
+        
+        if (!hasResultColumn) {
+          await m.addColumn(shotAttempts, shotAttempts.result);
+        }
+      }
+    },
+  );
 }
 
 LazyDatabase _open() => LazyDatabase(() async {

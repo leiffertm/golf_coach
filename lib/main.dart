@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'src/app_model.dart';
 import 'src/screens/home_screen.dart';
-import 'src/screens/log_attempt_screen.dart';
 import 'src/screens/stats_screen.dart';
 import 'src/screens/settings_screen.dart';
+import 'src/domain/club_distance_table.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize custom distances from JSON file
+  await ClubDistanceTable.initializeCustomDistances();
+  
+  
   runApp(const GolfCoachApp());
 }
 
@@ -16,26 +22,40 @@ class GolfCoachApp extends StatefulWidget {
 }
 
 class _GolfCoachAppState extends State<GolfCoachApp> {
-  final AppModel model = AppModel.initial();
+  late final Future<AppModel> _modelFuture;
+  AppModel? _model;
 
-  int _index = 0;
+  @override
+  void initState() {
+    super.initState();
+    _modelFuture = AppModel.initial();
+    _modelFuture.then((model) {
+      if (mounted) {
+        setState(() {
+          _model = model;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
-    model.dispose();
+    _model?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      HomeScreen(model: model),
-      StatsScreen(model: model),
-      SettingsScreen(model: model),
-    ];
+    if (_model == null) {
+      return const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
 
     return AnimatedBuilder(
-      animation: model,
+      animation: _model!,
       builder: (context, _) {
         return MaterialApp(
           title: 'Golf Coach',
@@ -45,20 +65,50 @@ class _GolfCoachAppState extends State<GolfCoachApp> {
             brightness: Brightness.light,
           ),
           routes: {
-            LogAttemptScreen.route: (_) => LogAttemptScreen(model: model),
+            '/stats': (_) => StatsScreen(model: _model!),
+            '/settings': (_) => SettingsScreen(model: _model!),
           },
           home: Scaffold(
-            appBar: AppBar(title: const Text('Golf Coach')),
-            body: pages[_index],
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: (i) => setState(() => _index = i),
-              destinations: const [
-                NavigationDestination(icon: Icon(Icons.sports_golf), label: 'Generate'),
-                NavigationDestination(icon: Icon(Icons.insights), label: 'Stats'),
-                NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
+            appBar: AppBar(
+              title: const Text('Golf Coach'),
+              actions: [
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'stats':
+                        Navigator.of(context).pushNamed('/stats');
+                        break;
+                      case 'settings':
+                        Navigator.of(context).pushNamed('/settings');
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    const PopupMenuItem<String>(
+                      value: 'stats',
+                      child: Row(
+                        children: [
+                          Icon(Icons.insights),
+                          SizedBox(width: 8),
+                          Text('Stats'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'settings',
+                      child: Row(
+                        children: [
+                          Icon(Icons.settings),
+                          SizedBox(width: 8),
+                          Text('Settings'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
+            body: HomeScreen(model: _model!),
           ),
         );
       },

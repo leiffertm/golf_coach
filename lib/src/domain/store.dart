@@ -2,7 +2,7 @@ import 'models.dart';
 
 abstract class Store {
   Future<void> putSpec(ShotSpec spec);
-  Future<void> putAttempt(ShotAttempt attempt);
+  Future<void> putAttempt(ShotAttempt attempt, {int? score});
   Future<ShotSpec?> getSpec(String id);
   Future<List<ShotAttempt>> allAttempts();
 }
@@ -15,7 +15,7 @@ class InMemoryStore implements Store {
   Future<void> putSpec(ShotSpec spec) async => _specs[spec.id] = spec;
 
   @override
-  Future<void> putAttempt(ShotAttempt attempt) async => _attempts[attempt.id] = attempt;
+  Future<void> putAttempt(ShotAttempt attempt, {int? score}) async => _attempts[attempt.id] = attempt;
 
   @override
   Future<ShotSpec?> getSpec(String id) async => _specs[id];

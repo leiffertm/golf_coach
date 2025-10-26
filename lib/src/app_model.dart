@@ -7,6 +7,7 @@ import 'domain/store.dart';
 import 'domain/insights.dart';
 import 'domain/scoring.dart';
 import 'domain/store_drift.dart'; // <-- import Drift-backed store
+import 'domain/custom_distances_loader.dart';
 
 class AppModel extends ChangeNotifier {
   final PracticeService service;
@@ -19,22 +20,20 @@ class AppModel extends ChangeNotifier {
 
   AppModel({required this.service, required this.prefs});
 
-  factory AppModel.initial() => AppModel(
-        service: PracticeService(store: DriftStore()), // <-- use Drift
-        prefs: UserPrefs(
-          inBag: {
-            Club.driver,
-            Club.w3,
-            Club.h4,
-            Club.i7,
-            Club.i8,
-            Club.i9,
-            Club.pw,
-            Club.sw,
-          },
-          skill: SkillLevel.intermediate,
-        ),
-      );
+  static Future<AppModel> initial() async {
+    // Load custom distances and selected clubs from JSON file
+    final customDistances = await CustomDistancesLoader.loadCustomDistances();
+    final selectedClubs = await CustomDistancesLoader.getSelectedClubs();
+    
+    return AppModel(
+      service: PracticeService(store: DriftStore()), // <-- use Drift
+      prefs: UserPrefs(
+        inBag: selectedClubs, // Use clubs that have valid distances in JSON
+        skill: SkillLevel.intermediate,
+        yardages: customDistances, // Use custom distances as default yardages
+      ),
+    );
+  }
 
   Future<void> generate() async {
     currentSpec = await service.generateSpec(prefs);

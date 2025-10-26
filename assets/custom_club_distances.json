@@ -1,0 +1,20 @@
+{
+  "driver": { "min": 275, "max": 325 },
+  "w3": { "min": 250, "max": 280 },
+  "w5": { "min": 230, "max": 270 },
+  "h3": { "min": null, "max": null },
+  "h4": { "min": null, "max": null },
+  "i2": { "min": 225, "max": 250 },
+  "i3": { "min": null, "max": null },
+  "i4": { "min": 215, "max": 230 },
+  "i5": { "min": 205, "max": 220 },
+  "i6": { "min": 190, "max": 205 },
+  "i7": { "min": 180, "max": 195 },
+  "i8": { "min": 170, "max": 185 },
+  "i9": { "min": 160, "max": 175 },
+  "pw": { "min": 135, "max": 150 },
+  "gw": { "min": 115, "max": 135 },
+  "sw": { "min": 95, "max": 115 },
+  "lw": { "min": 80, "max": 100 },
+  "hlw": { "min": 0, "max": 80 }
+}

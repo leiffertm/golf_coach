@@ -46,8 +46,8 @@ class PracticeService {
       endShortLongYards: carryYards - spec.carryYards,
       notes: notes,
     );
-    await store.putAttempt(attempt);
     final scoreRes = Scoring.score(skill: skill, spec: spec, attempt: attempt);
+    await store.putAttempt(attempt, score: scoreRes.score);
     return (attempt, scoreRes);
   }
 
